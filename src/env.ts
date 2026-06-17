@@ -2,14 +2,19 @@
 import { resolve } from "node:path";
 
 export async function loadEnv(): Promise<void> {
-  if (Deno.env.get("ESM_ENV_LOADED")) return; // Already loaded
+  const alreadyLoaded = Deno.env.get("ESM_ENV_LOADED");
+  const explicit = Deno.env.get("ESM_ENV_FILE");
+  // Skip reload only if no explicit override is requested
+  if (alreadyLoaded && !explicit) return;
 
   // Resolve repo root from script location (works regardless of cwd)
   const repoRoot = resolve(import.meta.dirname!, "..");
 
-  // Config directory first (reliable for MCP), then repo-local fallback
+  // Explicit override first, then config directory, then repo-local fallback
+  const home = Deno.env.get("HOME");
   const candidates = [
-    `${Deno.env.get("HOME")}/.config/env/esm.env`,
+    ...(explicit ? [explicit.replace(/^~/, home!)] : []),
+    `${home}/.config/env/esm.env`,
     `${repoRoot}/.env`,
   ];
 
@@ -31,6 +36,7 @@ export async function loadEnv(): Promise<void> {
         }
       }
       Deno.env.set("ESM_ENV_LOADED", "1");
+      console.error(`[esm] env loaded from: ${envPath}`);
       return; // Stop after first successful load
     } catch {
       // Try next candidate
