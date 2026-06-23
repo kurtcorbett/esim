@@ -1,9 +1,9 @@
-// Migrate constraint-layer naming to the canonical six-layer names:
-//   constraint_type:  belief    → understanding
-//   constraint_type:  structure → mechanics
-//   Discrepancy.altitude: belief → understanding, structure → mechanics
+// Migrate to the canonical six-layer / purpose-primitive naming:
+//   constraint_type:      belief    → understanding,  structure → mechanics
+//   Discrepancy.altitude: belief    → understanding,  structure → mechanics
+//   PURPOSE.purpose_type: change    → transform
 //
-// Run once against an existing graph after upgrading to the renamed enum.
+// Run once against an existing graph after upgrading to the renamed enums.
 // Idempotent: re-running it is a no-op (nothing left matches the old values).
 //
 //   deno run --allow-net --allow-env --allow-read --allow-sys scripts/migrate-constraint-naming.ts
@@ -40,6 +40,13 @@ SET d.altitude = 'mechanics' RETURN count(d) AS migrated`,
   params: {},
 });
 console.log("Discrepancy altitude structure → mechanics:", d2);
+
+const p1 = await runQuery({
+  cypher: `MATCH ()-[r:PURPOSE]->() WHERE r.purpose_type = 'change'
+SET r.purpose_type = 'transform' RETURN count(r) AS migrated`,
+  params: {},
+});
+console.log("PURPOSE purpose_type change → transform:", p1);
 
 await closeDriver();
 console.log("Migration complete.");

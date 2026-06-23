@@ -4,6 +4,8 @@ A graph-based MCP server that gives AI assistants persistent, structured memory 
 
 ESIM turns any AI client that supports [MCP](https://modelcontextprotocol.io/) into a system with long-term memory — structured as a typed knowledge graph with semantic search, relationship traversal, and automated diagnostics.
 
+> **Upgrading from `esm`?** This release renames the project (ESM → ESIM) and makes two breaking schema changes. See **[MIGRATING.md](MIGRATING.md)**.
+
 ## How It Works
 
 AI clients connect to ESIM via MCP (stdio transport). Every piece of knowledge is stored as a typed node in a Neo4j graph with vector embeddings for semantic search. Nodes are connected by typed relationships that encode how things relate.
