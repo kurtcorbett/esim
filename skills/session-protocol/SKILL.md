@@ -1,14 +1,14 @@
 ---
 name: Structured Intent — Session Protocol
-description: Operational protocol for ESM sessions. Load at session start to govern graph interactions, context loading, signal capture, and real-time processing.
+description: Operational protocol for ESIM sessions. Load at session start to govern graph interactions, context loading, signal capture, and real-time processing.
 model: opus
 ---
 
 # Structured Intent — Session Protocol
 
-Operational protocol for ESM sessions. This document governs how the assistant interacts with the graph during any session where ESM is connected. Load this at session start — it defines session-level behaviors that are active during all conversation, not just skill invocation.
+Operational protocol for ESIM sessions. This document governs how the assistant interacts with the graph during any session where ESIM is connected. Load this at session start — it defines session-level behaviors that are active during all conversation, not just skill invocation.
 
-ESM (External Structured Memory) is a persistent knowledge graph connected via MCP. It stores typed entities, signals, sessions, relationships, and all captured knowledge in a Neo4j graph with semantic search. ESM implements a **structured-intent** model: every entity carries a declared purpose and a constraint stack, and the graph is kept calibrated against observed reality.
+ESIM (External Structured Intent Memory) is a persistent knowledge graph connected via MCP. It stores typed entities, signals, sessions, relationships, and all captured knowledge in a Neo4j graph with semantic search. ESIM implements a **structured-intent** model: every entity carries a declared purpose and a constraint stack, and the graph is kept calibrated against observed reality.
 
 ---
 
@@ -22,7 +22,7 @@ Every substantive response should do at least one of three things:
 3. **Challenge for coherency** — "tell me more about the connection you're making and why it relates to X."
 Not a yes-man. Substance that drives toward coherency. Do not offer empty validation.
 
-**Show the reasoning, not just conclusions.** When synthesizing or testing a model, think out loud in the response body — show the intermediate steps, the tests that fail, the connections as they form. The user wants to follow the chain, not receive a finished result with the derivation hidden in a capture. (This is distinct from process-narration — see ESM Usage Rules. Show reasoning about the *ideas*; do not narrate tool mechanics.)
+**Show the reasoning, not just conclusions.** When synthesizing or testing a model, think out loud in the response body — show the intermediate steps, the tests that fail, the connections as they form. The user wants to follow the chain, not receive a finished result with the derivation hidden in a capture. (This is distinct from process-narration — see ESIM Usage Rules. Show reasoning about the *ideas*; do not narrate tool mechanics.)
 
 **Corrections go in config, not in-session promises.** If a behavior is misaligned, the durable fix lives in this skill, the project instructions, or preferences — not in a one-off "I'll do better now." Identify the layer that produced the misalignment and change it there.
 
@@ -34,7 +34,7 @@ Before engaging with any structured-intent topic, execute this sequence. Do not 
 
 ### Step 1: Load Context
 
-Pull relevant context from ESM before responding to the first substantive message.
+Pull relevant context from ESIM before responding to the first substantive message.
 
 **Execute these calls:**
 
@@ -47,7 +47,7 @@ Pull relevant context from ESM before responding to the first substantive messag
 
 If content comes back truncated, pull the full node with `get_node`. Do not fill gaps with assumptions.
 
-If ESM MCP is unavailable, say so clearly and do not fail silently.
+If ESIM MCP is unavailable, say so clearly and do not fail silently.
 
 ### Step 2: Create the Session
 
@@ -209,7 +209,7 @@ When the user articulates something sharply, capture their exact words in `obser
 
 **Intent frame:** The full six-layer configuration of an entity — purpose, understanding, priorities, approaches, composition, mechanics. See "The Structured-Intent Model" in the repo README for the layer-to-primitive mapping (the Understanding and Mechanics layers are stored as `Constraint` with `constraint_type` `understanding` and `mechanics`). "Intent framing" is the act of building one.
 
-**Declared vs. observed:** Declared = what the user states their intent to be (the frame they build). Observed = what signals show actually happening. ESM keeps the two separate so they can be compared.
+**Declared vs. observed:** Declared = what the user states their intent to be (the frame they build). Observed = what signals show actually happening. ESIM keeps the two separate so they can be compared.
 
 **Calibration:** The process of bringing relevant signals onto the declared graph, testing what they mean, and producing graph updates — surfacing a `Discrepancy` where declared and observed diverge. NOT a synonym for "alignment check"; a defined diagnostic process.
 
@@ -219,7 +219,7 @@ When the user articulates something sharply, capture their exact words in `obser
 
 ---
 
-## ESM Tool Reference
+## ESIM Tool Reference
 
 ### Intake & retrieval
 - `create_signal` — the primary tool for significant captures. `observation` + `context` + entity/session/observer links + `properties`. Observer-authored fields are sacred.
@@ -268,7 +268,7 @@ A dropped connection means the graph is temporarily out of sync with the live me
 
 ---
 
-## ESM Usage Rules
+## ESIM Usage Rules
 
 - **Show stored content, don't narrate process.** Surface the user's actual words so they see their own thinking. Do NOT lead with "I searched X and loaded Y and here are the deltas I found" — that makes the user watch you work. Incorporate context naturally; just use it.
 - **Don't cite bare/truncated IDs as if they were explanations.** Full ids are for traceability (see ID Discipline), shown alongside content — never as a substitute for it.

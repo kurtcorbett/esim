@@ -1,4 +1,4 @@
-// ESM — Embedding generation and metadata extraction via any OpenAI-compatible API
+// ESIM — Embedding generation and metadata extraction via any OpenAI-compatible API
 
 import type { ExtractedMetadata, NodeLabel } from "./types.ts";
 
@@ -174,7 +174,7 @@ const EXTRACTION_PROMPTS: Partial<Record<NodeLabel, string>> = {
 
   Signal: `Extract metadata from this signal. Return JSON:
 {
-  "source_type": "direct_observation" | "reported" | "inferred" | "environmental",
+  "how_observed": "direct_observation" | "reported" | "inferred" | "environmental",
   "confidence": "high" | "medium" | "low",
   "altitude": "purpose" | "priority" | "understanding" | "approach" | "mechanics"
 }`,
@@ -200,7 +200,7 @@ const REQUIRED_EXTRACTION_FIELDS: Partial<Record<NodeLabel, string[]>> = {
   Resource: ["resource_type"],
   Constraint: ["constraint_type", "rigidity"],
   Output: ["is_primitive"],
-  Signal: ["source_type", "confidence"],
+  Signal: ["how_observed", "confidence"],
   Session: ["session_type", "trigger_type"],
   Discrepancy: ["altitude"],
 };

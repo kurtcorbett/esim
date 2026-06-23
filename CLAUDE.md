@@ -1,4 +1,4 @@
-# ESM Project Instructions
+# ESIM Project Instructions
 
 - Runtime: Deno 2+, TypeScript
 - Run tests: `deno task test`

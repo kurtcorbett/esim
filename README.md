@@ -1,17 +1,17 @@
-# ESM — External Structured Memory
+# ESIM — External Structured Intent Memory
 
 A graph-based MCP server that gives AI assistants persistent, structured memory via Neo4j.
 
-ESM turns any AI client that supports [MCP](https://modelcontextprotocol.io/) into a system with long-term memory — structured as a typed knowledge graph with semantic search, relationship traversal, and automated diagnostics.
+ESIM turns any AI client that supports [MCP](https://modelcontextprotocol.io/) into a system with long-term memory — structured as a typed knowledge graph with semantic search, relationship traversal, and automated diagnostics.
 
 ## How It Works
 
-AI clients connect to ESM via MCP (stdio transport). Every piece of knowledge is stored as a typed node in a Neo4j graph with vector embeddings for semantic search. Nodes are connected by typed relationships that encode how things relate.
+AI clients connect to ESIM via MCP (stdio transport). Every piece of knowledge is stored as a typed node in a Neo4j graph with vector embeddings for semantic search. Nodes are connected by typed relationships that encode how things relate.
 
 ```
 AI Client (Claude, etc.)
     ↕ MCP (stdio)
-ESM Server (Deno + TypeScript)
+ESIM Server (Deno + TypeScript)
     ↕
 Neo4j (graph storage + vector search)
     ↕
@@ -41,15 +41,15 @@ LLM API (embeddings + metadata extraction)
 
 ## The Structured-Intent Model
 
-ESM's node and relationship types aren't generic — they encode a specific model of how intent is structured. Understanding the model is what makes the graph useful; without it, you just have typed boxes.
+ESIM's node and relationship types aren't generic — they encode a specific model of how intent is structured. Understanding the model is what makes the graph useful; without it, you just have typed boxes.
 
 The core idea: **intent has structure, and that structure can be made explicit, stored, and diagnosed.** Most intent lives implicitly — in someone's head, scattered across documents, assumed but never stated. Structured intent pulls it into the open as a graph you can reason about.
 
 ### The intent frame — six layers
 
-The central object is the **intent frame**: the full configuration of a single entity — a person, team, project, tool, or role. A complete frame answers six questions, cascading from *why* down to *how*. Each layer is expressed by an ESM primitive you already have, and each is judged a different way:
+The central object is the **intent frame**: the full configuration of a single entity — a person, team, project, tool, or role. A complete frame answers six questions, cascading from *why* down to *how*. Each layer is expressed by an ESIM primitive you already have, and each is judged a different way:
 
-| Layer | Question it answers | ESM primitive | Well-formed when… |
+| Layer | Question it answers | ESIM primitive | Well-formed when… |
 |-------|---------------------|---------------|-------------------|
 | **1. Purpose** | Why does it exist? | `PURPOSE` edge (+ `purpose_type`) | it points outward, to who or what it serves |
 | **2. Understanding** | What do we understand to be true? | `Constraint` (`understanding`) | the picture is *complete* — no unstated assumptions |
@@ -60,7 +60,7 @@ The central object is the **intent frame**: the full configuration of a single e
 
 The layers **cascade**: purpose shapes what you need to understand, understanding shapes which priorities are in play, priorities shape approaches, and so on down. That's why a problem at the bottom (a tool, a routine) so often traces to something unstated near the top (an unexamined understanding, an undeclared purpose) — and why you diagnose by walking the cascade from the symptom upward.
 
-Two of the six are edges rather than nodes: purpose and composition describe how an entity *relates* — to what it serves, and to its own parts. The other four are `Constraint` nodes, distinguished by `constraint_type`. None of this is a feature you switch on; the six layers are a lens over primitives ESM already stores.
+Two of the six are edges rather than nodes: purpose and composition describe how an entity *relates* — to what it serves, and to its own parts. The other four are `Constraint` nodes, distinguished by `constraint_type`. None of this is a feature you switch on; the six layers are a lens over primitives ESIM already stores.
 
 > **Naming note:** the four constraint layers are stored as `Constraint` nodes with `constraint_type` `understanding`, `priority`, `approach`, or `mechanics`. Purpose and Composition aren't constraint types — they're the `PURPOSE` and `CONTAINS` edges.
 
@@ -94,11 +94,11 @@ Constraints are the lever. Aligned with purpose, a constraint *multiplies* outpu
 
 ### Purpose vs. function
 
-**Purpose** is what an entity exists to do (declared). **Function** is what it's actually being used for (observed). Conflating the two is at the root of most misalignment — a butter knife used as a screwdriver partly works, but the knife gets damaged and the screw never seats. ESM keeps declared purpose and observed function as separate, comparable things; the gap between them is a first-class node (a `Discrepancy`).
+**Purpose** is what an entity exists to do (declared). **Function** is what it's actually being used for (observed). Conflating the two is at the root of most misalignment — a butter knife used as a screwdriver partly works, but the knife gets damaged and the screw never seats. ESIM keeps declared purpose and observed function as separate, comparable things; the gap between them is a first-class node (a `Discrepancy`).
 
 ### Framing an intent — the workflow
 
-"Intent framing" is the act of building a frame for a specific entity until it's complete and coherent. In ESM that's a concrete sequence of tool calls:
+"Intent framing" is the act of building a frame for a specific entity until it's complete and coherent. In ESIM that's a concrete sequence of tool calls:
 
 1. **Create the entity.** `create_entity` an `Agent` (or `Role`) — the thing whose intent you're framing.
 2. **Declare purpose.** Wire `PURPOSE` edges from it to what it serves, each with a `purpose_type`. No purpose edge means no intent — just reaction.
@@ -134,18 +134,18 @@ docker compose up -d
 
 # Configure environment (recommended: system-wide config directory)
 mkdir -p ~/.config/env
-cp .env.example ~/.config/env/esm.env
-# Edit ~/.config/env/esm.env — uncomment Docker lines, add your OpenAI key
+cp .env.example ~/.config/env/esim.env
+# Edit ~/.config/env/esim.env — uncomment Docker lines, add your OpenAI key
 
 # Initialize schema (creates vector indexes + constraints)
 deno task setup
 
 # Register with Claude Code (use absolute path to your clone)
-claude mcp add esm -- deno run --allow-net --allow-env --allow-read --allow-sys \
-  /absolute/path/to/esm/src/main.ts
+claude mcp add esim -- deno run --allow-net --allow-env --allow-read --allow-sys \
+  /absolute/path/to/esim/src/main.ts
 
 # Verify
-claude mcp list   # should show "esm"
+claude mcp list   # should show "esim"
 ```
 
 ### Fully Local Setup (Docker + Ollama)
@@ -166,9 +166,9 @@ For a fully self-hosted setup with no external API calls:
 3. Configure environment:
    ```bash
    mkdir -p ~/.config/env
-   cp .env.example ~/.config/env/esm.env
+   cp .env.example ~/.config/env/esim.env
    ```
-   Edit `~/.config/env/esm.env` — uncomment the Docker and Ollama sections:
+   Edit `~/.config/env/esim.env` — uncomment the Docker and Ollama sections:
    ```env
    NEO4J_DB_CONNECTION_URI=bolt://localhost:7687
    NEO4J_DB_USERNAME=neo4j
@@ -183,8 +183,8 @@ For a fully self-hosted setup with no external API calls:
 4. Initialize and register:
    ```bash
    deno task setup
-   claude mcp add esm -- deno run --allow-net --allow-env --allow-read --allow-sys \
-     /absolute/path/to/esm/src/main.ts
+   claude mcp add esim -- deno run --allow-net --allow-env --allow-read --allow-sys \
+     /absolute/path/to/esim/src/main.ts
    ```
 
 ### Cloud Setup (Neo4j Aura + OpenAI/OpenRouter)
@@ -193,9 +193,9 @@ For a fully self-hosted setup with no external API calls:
 2. Configure environment:
    ```bash
    mkdir -p ~/.config/env
-   cp .env.example ~/.config/env/esm.env
+   cp .env.example ~/.config/env/esim.env
    ```
-   Edit `~/.config/env/esm.env`:
+   Edit `~/.config/env/esim.env`:
    ```env
    NEO4J_DB_CONNECTION_URI=neo4j+s://xxxx.databases.neo4j.io
    NEO4J_DB_USERNAME=neo4j
@@ -206,8 +206,8 @@ For a fully self-hosted setup with no external API calls:
 3. Initialize and register:
    ```bash
    deno task setup
-   claude mcp add esm -- deno run --allow-net --allow-env --allow-read --allow-sys \
-     /absolute/path/to/esm/src/main.ts
+   claude mcp add esim -- deno run --allow-net --allow-env --allow-read --allow-sys \
+     /absolute/path/to/esim/src/main.ts
    ```
 
 ## Environment Variables
@@ -225,8 +225,8 @@ For a fully self-hosted setup with no external API calls:
 
 Environment is loaded in this order (first found wins):
 
-1. `ESM_ENV_FILE` environment variable (explicit override — useful for multi-instance setups)
-2. `~/.config/env/esm.env` (recommended — works regardless of working directory)
+1. `ESIM_ENV_FILE` environment variable (explicit override — useful for multi-instance setups)
+2. `~/.config/env/esim.env` (recommended — works regardless of working directory)
 3. `.env` in repo root (fallback for development)
 
 **Important:** `LLM_EMBEDDING_DIMENSIONS` must exactly match your embedding model's output. Common values: `text-embedding-3-small` = 1536, `nomic-embed-text` (Ollama) = 768. If you change models after setup, drop and recreate indexes (see Troubleshooting).
@@ -236,10 +236,10 @@ Environment is loaded in this order (first found wins):
 ### Claude Code
 
 ```bash
-claude mcp add esm -- deno run --allow-net --allow-env --allow-read --allow-sys /path/to/esm/src/main.ts
+claude mcp add esim -- deno run --allow-net --allow-env --allow-read --allow-sys /path/to/esim/src/main.ts
 ```
 
-Verify: `claude mcp list` should show `esm` as available.
+Verify: `claude mcp list` should show `esim` as available.
 
 ### Claude Desktop
 
@@ -248,15 +248,15 @@ Add to your MCP config (location varies by platform — see Claude Desktop docs)
 ```json
 {
   "mcpServers": {
-    "esm": {
+    "esim": {
       "command": "deno",
-      "args": ["run", "--allow-net", "--allow-env", "--allow-read", "--allow-sys", "/path/to/esm/src/main.ts"]
+      "args": ["run", "--allow-net", "--allow-env", "--allow-read", "--allow-sys", "/path/to/esim/src/main.ts"]
     }
   }
 }
 ```
 
-Restart Claude Desktop after editing. ESM tools appear in the tools menu.
+Restart Claude Desktop after editing. ESIM tools appear in the tools menu.
 
 ### Verifying the Connection
 
@@ -571,9 +571,9 @@ Delete a node and all its relationships. Irreversible.
 
 ## Security & Privacy
 
-**ESM is designed for local, single-user environments.** It runs as a stdio MCP server — the AI client and ESM communicate over standard input/output on your local machine. There is no network authentication layer.
+**ESIM is designed for local, single-user environments.** It runs as a stdio MCP server — the AI client and ESIM communicate over standard input/output on your local machine. There is no network authentication layer.
 
-Do not expose ESM over a network without adding your own authentication. Anyone with access to the MCP transport can read and write all data in the graph.
+Do not expose ESIM over a network without adding your own authentication. Anyone with access to the MCP transport can read and write all data in the graph.
 
 **Data flow awareness:**
 - By default, node content is sent to your configured LLM API (OpenAI, OpenRouter, etc.) for embedding generation and metadata extraction.
@@ -598,9 +598,9 @@ src/
 
 ## Troubleshooting
 
-**"Missing NEO4J_DB_CONNECTION_URI"** — Environment file not found. Check that `~/.config/env/esm.env` exists, or set `ESM_ENV_FILE` explicitly:
+**"Missing NEO4J_DB_CONNECTION_URI"** — Environment file not found. Check that `~/.config/env/esim.env` exists, or set `ESIM_ENV_FILE` explicitly:
 ```bash
-ESM_ENV_FILE=/path/to/your/.env deno task setup
+ESIM_ENV_FILE=/path/to/your/.env deno task setup
 ```
 
 **"Neo4j connection failed"** — Docker not running or wrong URI. Verify Neo4j is up:
@@ -617,19 +617,19 @@ deno run --allow-net --allow-env --allow-read --allow-sys scripts/drop-indexes.t
 deno task setup
 ```
 
-**Claude Code doesn't see ESM tools** — Re-register and verify:
+**Claude Code doesn't see ESIM tools** — Re-register and verify:
 ```bash
-claude mcp remove esm
-claude mcp add esm -- deno run --allow-net --allow-env --allow-read --allow-sys /absolute/path/to/esm/src/main.ts
+claude mcp remove esim
+claude mcp add esim -- deno run --allow-net --allow-env --allow-read --allow-sys /absolute/path/to/esim/src/main.ts
 claude mcp list
 ```
 
 ## Skills
 
-ESM ships with [Claude Code](https://claude.com/claude-code) skills in [`skills/`](skills/) that turn the raw graph into a guided, structured-intent practice:
+ESIM ships with [Claude Code](https://claude.com/claude-code) skills in [`skills/`](skills/) that turn the raw graph into a guided, structured-intent practice:
 
 - **[`purpose-discovery`](skills/purpose-discovery/SKILL.md)** — facilitates a first structured-intent session: discover an entity's core purpose, constraint stack, and foundational graph.
-- **[`session-protocol`](skills/session-protocol/SKILL.md)** — an operating protocol that governs how the assistant loads context, captures signals, and keeps the graph synchronized during any ESM session.
+- **[`session-protocol`](skills/session-protocol/SKILL.md)** — an operating protocol that governs how the assistant loads context, captures signals, and keeps the graph synchronized during any ESIM session.
 - **[`signal-processing`](skills/signal-processing/SKILL.md)** — processes captured signals into graph-state updates so the graph stays coherent and complete.
 
 See [`skills/README.md`](skills/README.md) for how to load them.

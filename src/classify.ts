@@ -1,4 +1,4 @@
-// ESM — Content classification for unified capture intake
+// ESIM — Content classification for unified capture intake
 
 import type { ClassificationResult, NodeLabel } from "./types.ts";
 import { ALL_NODE_LABELS } from "./types.ts";

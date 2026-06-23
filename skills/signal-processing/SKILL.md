@@ -2,7 +2,7 @@
 name: signal-processing
 description: Structured-intent signal processing — run the pipeline that turns unprocessed signals into graph-state updates (capture, classify, link, evaluate, resolve, propagate).
 model: opus
-allowed-tools: [mcp__esm__create_entity, mcp__esm__create_signal, mcp__esm__create_session, mcp__esm__create_relationship, mcp__esm__search, mcp__esm__get_node, mcp__esm__traverse, mcp__esm__update_node, mcp__esm__capture, mcp__esm__stats, mcp__esm__run_diagnostic, mcp__esm__list, mcp__esm__delete_node, mcp__esm__get_context]
+allowed-tools: [mcp__esim__create_entity, mcp__esim__create_signal, mcp__esim__create_session, mcp__esim__create_relationship, mcp__esim__search, mcp__esim__get_node, mcp__esim__traverse, mcp__esim__update_node, mcp__esim__capture, mcp__esim__stats, mcp__esim__run_diagnostic, mcp__esim__list, mcp__esim__delete_node, mcp__esim__get_context]
 ---
 
 # Signal Processing Orchestrator
@@ -153,4 +153,4 @@ update_node({ id: "<session_id>", properties: { status: "completed" }})
 
 ## MCP Server Note
 
-This skill calls `mcp__esm__*` tools, so the ESM MCP server must be registered as `esm` in your client (see the repo README for registration). If you run a separate sandbox instance under a different name, update the tool prefixes to match.
+This skill calls `mcp__esim__*` tools, so the ESIM MCP server must be registered as `esim` in your client (see the repo README for registration). If you run a separate sandbox instance under a different name, update the tool prefixes to match.

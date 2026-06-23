@@ -1,9 +1,9 @@
-// ESM — Environment variable loading
+// ESIM — Environment variable loading
 import { resolve } from "node:path";
 
 export async function loadEnv(): Promise<void> {
-  const alreadyLoaded = Deno.env.get("ESM_ENV_LOADED");
-  const explicit = Deno.env.get("ESM_ENV_FILE");
+  const alreadyLoaded = Deno.env.get("ESIM_ENV_LOADED");
+  const explicit = Deno.env.get("ESIM_ENV_FILE");
   // Skip reload only if no explicit override is requested
   if (alreadyLoaded && !explicit) return;
 
@@ -14,7 +14,7 @@ export async function loadEnv(): Promise<void> {
   const home = Deno.env.get("HOME");
   const candidates = [
     ...(explicit ? [explicit.replace(/^~/, home!)] : []),
-    `${home}/.config/env/esm.env`,
+    `${home}/.config/env/esim.env`,
     `${repoRoot}/.env`,
   ];
 
@@ -35,8 +35,8 @@ export async function loadEnv(): Promise<void> {
           Deno.env.set(match[1], value);
         }
       }
-      Deno.env.set("ESM_ENV_LOADED", "1");
-      console.error(`[esm] env loaded from: ${envPath}`);
+      Deno.env.set("ESIM_ENV_LOADED", "1");
+      console.error(`[esim] env loaded from: ${envPath}`);
       return; // Stop after first successful load
     } catch {
       // Try next candidate

@@ -1,4 +1,4 @@
-// ESM — Context reconstruction from graph anchors
+// ESIM — Context reconstruction from graph anchors
 
 import { runQuery } from "./db.ts";
 import { getEmbedding } from "./llm.ts";

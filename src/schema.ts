@@ -1,4 +1,4 @@
-// ESM — Schema setup script. Run via: deno task setup
+// ESIM — Schema setup script. Run via: deno task setup
 
 import { getDriver, closeDriver, runQuery } from "./db.ts";
 import { schemaSetupQueries } from "./queries.ts";

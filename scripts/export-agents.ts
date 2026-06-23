@@ -1,4 +1,4 @@
-// ESM — Export agent intent stacks as structured markdown (bootstrap prompt generator)
+// ESIM — Export agent intent stacks as structured markdown (bootstrap prompt generator)
 //
 // Usage:
 //   deno run --allow-net --allow-env --allow-read --allow-write --allow-sys \
@@ -232,7 +232,7 @@ const sections: string[] = [];
 sections.push("# Signal Processing Engine — Agent Intent Stacks");
 sections.push("");
 sections.push(
-  `> Auto-generated from ESM graph on ${new Date().toISOString().split("T")[0]}. Source of truth: the graph entities. Regenerate after architectural changes.`
+  `> Auto-generated from ESIM graph on ${new Date().toISOString().split("T")[0]}. Source of truth: the graph entities. Regenerate after architectural changes.`
 );
 sections.push("");
 

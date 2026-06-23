@@ -1,4 +1,4 @@
-// ESM — Entry point: McpServer + StdioServerTransport
+// ESIM — Entry point: McpServer + StdioServerTransport
 
 import { StdioServerTransport } from "@modelcontextprotocol/sdk/server/stdio.js";
 import { createServer } from "./server.ts";
@@ -13,6 +13,6 @@ async function main() {
 }
 
 main().catch((err) => {
-  console.error("ESM server failed to start:", err);
+  console.error("ESIM server failed to start:", err);
   Deno.exit(1);
 });

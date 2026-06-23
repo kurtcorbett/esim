@@ -1,4 +1,4 @@
-// ESM — TypeScript types
+// ESIM — TypeScript types
 
 // ─── Node Labels ──────────────────────────────────────────────
 

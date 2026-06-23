@@ -1,4 +1,4 @@
-// ESM — MCP Server with all tool registrations
+// ESIM — MCP Server with all tool registrations
 
 import { McpServer } from "@modelcontextprotocol/sdk/server/mcp.js";
 import { z } from "npm:zod@3";
@@ -34,7 +34,7 @@ import type { NodeLabel, CypherQuery } from "./types.ts";
 /** Log full error to stderr and return a sanitized message for MCP clients. */
 function safeErrorMessage(err: unknown): string {
   const msg = (err as Error).message || "Unknown error";
-  console.error("ESM error:", msg);
+  console.error("ESIM error:", msg);
   // TODO: restore sanitization after debugging
   return `DEBUG: ${msg}`;
   if (/fetch|openai|openrouter|embedding.*failed|API/i.test(msg)) {
@@ -115,7 +115,7 @@ function compactPath(path: Record<string, unknown>): Record<string, unknown> {
 
 export function createServer(): McpServer {
   const server = new McpServer({
-    name: "esm",
+    name: "esim",
     version: "0.1.0",
   });
 

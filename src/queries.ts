@@ -1,4 +1,4 @@
-// ESM — Cypher query builders. Returns { cypher, params } — no execution.
+// ESIM — Cypher query builders. Returns { cypher, params } — no execution.
 
 import type { CypherQuery, NodeLabel, RelationshipType } from "./types.ts";
 import { ENTITY_LABELS } from "./types.ts";

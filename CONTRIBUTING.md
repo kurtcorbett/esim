@@ -1,4 +1,4 @@
-# Contributing to ESM
+# Contributing to ESIM
 
 ## Setup
 

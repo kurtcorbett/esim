@@ -1,4 +1,4 @@
-// ESM — Neo4j connection and query runner
+// ESIM — Neo4j connection and query runner
 
 import neo4j, { type Driver, type Session } from "neo4j-driver";
 import type { CypherQuery } from "./types.ts";
