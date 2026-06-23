@@ -156,8 +156,8 @@ For a fully self-hosted setup with no external API calls:
 
 1. Install [Ollama](https://ollama.com/) and pull models:
    ```bash
-   ollama pull nomic-embed-text
-   ollama pull llama3.2
+   ollama pull qwen3-embedding:0.6b   # embeddings — see "Choosing an Embedding Model" below
+   ollama pull llama3.2               # metadata extraction / classification
    ```
 
 2. Start Neo4j:
@@ -177,8 +177,8 @@ For a fully self-hosted setup with no external API calls:
    NEO4J_DB_PASSWORD=password
    LLM_BASE_URL=http://localhost:11434/v1
    LLM_API_KEY=ollama
-   LLM_EMBEDDING_MODEL=nomic-embed-text
-   LLM_EMBEDDING_DIMENSIONS=768
+   LLM_EMBEDDING_MODEL=qwen3-embedding:0.6b
+   LLM_EMBEDDING_DIMENSIONS=1024
    LLM_COMPLETION_MODEL=llama3.2
    ```
 
@@ -231,7 +231,43 @@ Environment is loaded in this order (first found wins):
 2. `~/.config/env/esim.env` (recommended — works regardless of working directory)
 3. `.env` in repo root (fallback for development)
 
-**Important:** `LLM_EMBEDDING_DIMENSIONS` must exactly match your embedding model's output. Common values: `text-embedding-3-small` = 1536, `nomic-embed-text` (Ollama) = 768. If you change models after setup, drop and recreate indexes (see Troubleshooting).
+**Important:** `LLM_EMBEDDING_DIMENSIONS` must exactly match your embedding model's output. Common values: `qwen3-embedding:0.6b` (Ollama) = 1024, `nomic-embed-text` (Ollama) = 768, `text-embedding-3-small` (OpenAI) = 1536. If you change models after setup, drop and recreate indexes — see **Choosing an Embedding Model** below.
+
+## Choosing an Embedding Model
+
+Semantic search quality is mostly set by the embedding model, and for ESIM one factor matters more than benchmark scores: **the context window.**
+
+ESIM embeds whole nodes, not short labels — a single node can hold several paragraphs (a signal stores its full reasoning, not just a title). If the model's context window is smaller than the node, it embeds only the beginning and silently drops the rest, quietly degrading search. **Choose a model whose context window comfortably exceeds your longest nodes.** This is why `mxbai-embed-large`, despite strong English recall, is a poor fit here: its 512-token window truncates longer entries.
+
+Dimension count matters much less. An ESIM graph is small — hundreds to low thousands of nodes — so the usual "more dimensions = more storage and slower search" tradeoff is negligible. Use the model's native dimension and move on.
+
+### Options (Ollama / local)
+
+| Model | Native dims | Context | Fit for ESIM |
+|-------|-------------|---------|--------------|
+| **`qwen3-embedding:0.6b`** — recommended | 1024 | 32K | Best 2026 local quality, multilingual (100+ languages), context so large no node ever truncates. ~640 MB. |
+| `bge-m3` | 1024 | 8K | Proven, multilingual, also emits sparse vectors (a path to hybrid search later). ~1.2 GB. |
+| `embeddinggemma` | 768 | 2K | Best quality-per-byte when RAM is tight. ~300 MB. |
+| `nomic-embed-text` | 768 | ~2K | Lightweight baseline — fine, but bettered by the above. ~274 MB. |
+| `mxbai-embed-large` | 1024 | **512** ⚠️ | Strong English recall, but the 512-token window truncates rich `context` fields — a poor fit for ESIM despite its reputation. |
+
+For OpenAI/cloud, `text-embedding-3-small` (1536) and `text-embedding-3-large` (3072) both have ample context and need no special handling.
+
+### Changing models after setup
+
+Embeddings from different models are **not comparable** — switching models means re-embedding every node, even if the dimension count is identical:
+
+```bash
+# 1. Set LLM_EMBEDDING_MODEL + LLM_EMBEDDING_DIMENSIONS in your env file
+# 2. Drop the old vector indexes
+deno run --allow-net --allow-env --allow-read --allow-sys scripts/drop-indexes.ts
+# 3. Recreate indexes at the new dimension
+deno task setup
+# 4. Re-embed every node with the new model
+deno run --allow-net --allow-env --allow-read --allow-sys scripts/reembed.ts
+```
+
+> **Note:** `scripts/reembed.ts` only re-embeds nodes whose vector length differs from the configured dimension. If you switch models but keep the same dimension, it won't notice the change — clear the old embeddings first, or change the dimension to force a full re-embed.
 
 ## MCP Connection
 
