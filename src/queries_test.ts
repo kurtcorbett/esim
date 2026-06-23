@@ -289,9 +289,9 @@ Deno.test("diagnosticQueries — unattached_needs checks SCOPED_TO in both direc
   assertStringIncludes(q.unattached_needs.cypher, "SCOPED_TO");
 });
 
-Deno.test("diagnosticQueries — hollow_middle checks belief and approach constraints", () => {
+Deno.test("diagnosticQueries — hollow_middle checks understanding and approach constraints", () => {
   const q = diagnosticQueries();
-  assertStringIncludes(q.hollow_middle.cypher, "belief");
+  assertStringIncludes(q.hollow_middle.cypher, "understanding");
   assertStringIncludes(q.hollow_middle.cypher, "approach");
   assertStringIncludes(q.hollow_middle.cypher, "SERVES");
 });

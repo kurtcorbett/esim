@@ -27,7 +27,7 @@ LLM API (embeddings + metadata extraction)
 | **Agent** | A person, team, org, or AI that acts with intent |
 | **Need** | A gap, requirement, or want — has a lifecycle |
 | **Resource** | A capability or asset — skill, knowledge, tool, budget |
-| **Constraint** | A governing force — priority, belief, approach, structure |
+| **Constraint** | A governing force — priority, understanding, approach, mechanics |
 | **Output** | Something produced by an agent |
 | **Role** | A named function or position |
 | **Signal** | An observation — concrete data + interpretation |
@@ -37,7 +37,86 @@ LLM API (embeddings + metadata extraction)
 
 ### Relationship Types
 
-21 typed relationships including `PURPOSE`, `CONTAINS`, `FILLS`, `GOVERNS`, `OWNS`, `SERVES`, `SIGNALS`, `SCOPED_TO`, `TRIGGERED_BY`, and more. See `src/types.ts` for the full list.
+23 typed relationships including `PURPOSE`, `CONTAINS`, `FILLS`, `GOVERNS`, `OWNS`, `SERVES`, `SIGNALS`, `SCOPED_TO`, `TRIGGERED_BY`, `AFFECTS`, `GOVERNED_BY`, and more. See `src/types.ts` for the full list.
+
+## The Structured-Intent Model
+
+ESM's node and relationship types aren't generic — they encode a specific model of how intent is structured. Understanding the model is what makes the graph useful; without it, you just have typed boxes.
+
+The core idea: **intent has structure, and that structure can be made explicit, stored, and diagnosed.** Most intent lives implicitly — in someone's head, scattered across documents, assumed but never stated. Structured intent pulls it into the open as a graph you can reason about.
+
+### The intent frame — six layers
+
+The central object is the **intent frame**: the full configuration of a single entity — a person, team, project, tool, or role. A complete frame answers six questions, cascading from *why* down to *how*. Each layer is expressed by an ESM primitive you already have, and each is judged a different way:
+
+| Layer | Question it answers | ESM primitive | Well-formed when… |
+|-------|---------------------|---------------|-------------------|
+| **1. Purpose** | Why does it exist? | `PURPOSE` edge (+ `purpose_type`) | it points outward, to who or what it serves |
+| **2. Understanding** | What do we understand to be true? | `Constraint` (`understanding`) | the picture is *complete* — no unstated assumptions |
+| **3. Priorities** | What wins when things conflict? | `Constraint` (`priority`) | each takes a clear *position* on a real tension |
+| **4. Approaches** | How do we go about it? | `Constraint` (`approach`) | the method is *compatible* with the priorities above |
+| **5. Composition** | What is it made of? | `CONTAINS` edge (with `order`) | the parts *cohere* — they fit together |
+| **6. Mechanics** | What concrete machinery runs it? | `Constraint` (`mechanics`) | it *integrates* with everything above |
+
+The layers **cascade**: purpose shapes what you need to understand, understanding shapes which priorities are in play, priorities shape approaches, and so on down. That's why a problem at the bottom (a tool, a routine) so often traces to something unstated near the top (an unexamined understanding, an undeclared purpose) — and why you diagnose by walking the cascade from the symptom upward.
+
+Two of the six are edges rather than nodes: purpose and composition describe how an entity *relates* — to what it serves, and to its own parts. The other four are `Constraint` nodes, distinguished by `constraint_type`. None of this is a feature you switch on; the six layers are a lens over primitives ESM already stores.
+
+> **Naming note:** the four constraint layers are stored as `Constraint` nodes with `constraint_type` `understanding`, `priority`, `approach`, or `mechanics`. Purpose and Composition aren't constraint types — they're the `PURPOSE` and `CONTAINS` edges.
+
+### Purpose lives on edges, not in nodes
+
+An entity's purpose isn't a property it holds — it's the set of `PURPOSE` edges pointing from it to what it serves. A person, team, or tool *exists to do something for someone*, and that "for someone" is directional, so it's an edge. An entity with no purpose edges doesn't act with intent — it reacts.
+
+Every `PURPOSE` edge carries a type:
+
+| Purpose type | Meaning |
+|--------------|---------|
+| **Create** | New value enters the system |
+| **Sustain** | Existing value held against entropy |
+| **Transform** | Value changes form through processing |
+| **Enable** | Value reaches a destination it couldn't reach alone |
+
+### The intent formula
+
+Structured intent reads every output through one relationship:
+
+```
+(Needs + Resources) / Constraints = Output
+```
+
+- **Needs** — what is required.
+- **Resources** — what is available (skill, knowledge, tool, budget, capacity).
+- **Constraints** — what shapes how potential becomes output.
+- **Output** — what actually gets produced.
+
+Constraints are the lever. Aligned with purpose, a constraint *multiplies* output (leverage); misaligned, it *consumes* potential (a tax). The formula turns a vague "this isn't working" into a locatable question: *which constraint is taxing the output?*
+
+### Purpose vs. function
+
+**Purpose** is what an entity exists to do (declared). **Function** is what it's actually being used for (observed). Conflating the two is at the root of most misalignment — a butter knife used as a screwdriver partly works, but the knife gets damaged and the screw never seats. ESM keeps declared purpose and observed function as separate, comparable things; the gap between them is a first-class node (a `Discrepancy`).
+
+### Framing an intent — the workflow
+
+"Intent framing" is the act of building a frame for a specific entity until it's complete and coherent. In ESM that's a concrete sequence of tool calls:
+
+1. **Create the entity.** `create_entity` an `Agent` (or `Role`) — the thing whose intent you're framing.
+2. **Declare purpose.** Wire `PURPOSE` edges from it to what it serves, each with a `purpose_type`. No purpose edge means no intent — just reaction.
+3. **Add the four constraint layers.** `create_entity` `Constraint` nodes for Understanding, Priorities, Approaches, and Mechanics (`constraint_type` `understanding`, `priority`, `approach`, `mechanics`); wire them with `GOVERNS`.
+4. **Compose it.** If the entity has parts, `create_entity` them and wire `CONTAINS` (with `order`) — that's the composition layer.
+5. **Attach needs and resources.** `create_entity` `Need` and `Resource` nodes for what's required and what's available.
+6. **Capture evidence as it arrives.** As reality produces observations, `create_signal` to record them against the relevant entity — declared intent on one side, observed signal on the other.
+7. **Calibrate.** Compare the declared frame against accumulated signals. Where they diverge, surface a `Discrepancy`. Closing that gap — by updating the frame or changing behavior — is the point of the whole exercise.
+
+Steps 1–5 are *declaration* (what you intend); steps 6–7 are *calibration* (reconciling intent with reality). A frame is never "done" — it gets sharper every time you calibrate.
+
+### Where the skills fit
+
+The [`skills/`](skills/) directory turns this model into guided practice:
+
+- [`purpose-discovery`](skills/purpose-discovery/SKILL.md) — walks a person through building their first frame end to end (steps 1–5).
+- [`session-protocol`](skills/session-protocol/SKILL.md) — governs how the assistant captures signals and keeps the graph calibrated during ongoing work (steps 6–7).
+- [`signal-processing`](skills/signal-processing/SKILL.md) — systematically processes captured signals into graph updates (the engine behind calibration).
 
 ## Setup
 
@@ -252,7 +331,7 @@ Create a typed entity node (Agent, Need, Resource, Constraint, Output, Role). Au
 | `properties` | object | No | Additional properties — explicit values override LLM-extracted metadata |
 
 ```json
-{ "entity_type": "Agent", "name": "Kurt", "content": "Engineering manager focused on platform infrastructure" }
+{ "entity_type": "Agent", "name": "Ada", "content": "Engineering manager focused on platform infrastructure" }
 
 { "entity_type": "Need", "name": "Auth Migration", "content": "Migrate auth service to OAuth 2.1", "properties": { "lifecycle_state": "open", "priority": "high" } }
 ```
@@ -313,7 +392,7 @@ Start a session with participants, scope, and triggers. Creates `PARTICIPATES_IN
 
 ### `create_relationship`
 
-Create any of the 21 relationship types between two nodes with optional edge properties.
+Create any of the 23 relationship types between two nodes with optional edge properties.
 
 **Parameters:**
 
@@ -545,9 +624,15 @@ claude mcp add esm -- deno run --allow-net --allow-env --allow-read --allow-sys 
 claude mcp list
 ```
 
-## What's Next
+## Skills
 
-ESM provides the storage layer. For SIA (Strategic Intent Alignment) operational behavior — signal processing pipelines, onboarding sessions, session protocol — see the [SIA Plugins](https://github.com/kurtcorbett/sia-plugins) repo. Its README covers deploying skill files and the session protocol to your projects.
+ESM ships with [Claude Code](https://claude.com/claude-code) skills in [`skills/`](skills/) that turn the raw graph into a guided, structured-intent practice:
+
+- **[`purpose-discovery`](skills/purpose-discovery/SKILL.md)** — facilitates a first structured-intent session: discover an entity's core purpose, constraint stack, and foundational graph.
+- **[`session-protocol`](skills/session-protocol/SKILL.md)** — an operating protocol that governs how the assistant loads context, captures signals, and keeps the graph synchronized during any ESM session.
+- **[`signal-processing`](skills/signal-processing/SKILL.md)** — processes captured signals into graph-state updates so the graph stays coherent and complete.
+
+See [`skills/README.md`](skills/README.md) for how to load them.
 
 ## License
 

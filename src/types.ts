@@ -92,7 +92,7 @@ export interface ResourceNode extends BaseNode, EmbeddableNode {
 export interface ConstraintNode extends BaseNode, EmbeddableNode {
   name: string;
   content: string;
-  constraint_type: "priority" | "belief" | "approach" | "structure";
+  constraint_type: "priority" | "understanding" | "approach" | "mechanics";
   rigidity?: "fixed" | "firm" | "flexible";
   validation_state?: "assumption" | "conviction" | "learning";
   origin_source?: "intentional" | "emergent" | "inherited";
@@ -138,7 +138,7 @@ export interface SignalNode extends BaseNode, EmbeddableNode {
 export interface DiscrepancyNode extends BaseNode, EmbeddableNode {
   content: string;
   lifecycle_state: "surfaced" | "acknowledged" | "under_investigation" | "resolved" | "accepted";
-  altitude?: "purpose" | "priority" | "belief" | "approach" | "structure";
+  altitude?: "purpose" | "priority" | "understanding" | "approach" | "mechanics";
 }
 
 export interface SessionNode extends BaseNode, EmbeddableNode {
@@ -152,7 +152,7 @@ export interface SessionNode extends BaseNode, EmbeddableNode {
 // ─── Relationship Properties ──────────────────────────────────
 
 export interface PurposeEdgeProps {
-  purpose_type: "create" | "sustain" | "change" | "enable";
+  purpose_type: "create" | "sustain" | "transform" | "enable";
   value_description?: string;
   failure_condition?: string;
   trust?: number;

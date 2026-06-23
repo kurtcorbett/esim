@@ -421,7 +421,7 @@ RETURN from.id AS from_id, from.name AS from_name,
 
     hollow_middle: {
       cypher: `MATCH (c:Constraint)
-WHERE c.constraint_type IN ['belief', 'approach']
+WHERE c.constraint_type IN ['understanding', 'approach']
   AND NOT (c)-[:SERVES]->(:Constraint)
   AND NOT (:Constraint)-[:SERVES]->(c)
 RETURN c.id AS id, c.name AS name, c.constraint_type AS constraint_type,

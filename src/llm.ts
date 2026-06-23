@@ -161,9 +161,9 @@ const EXTRACTION_PROMPTS: Partial<Record<NodeLabel, string>> = {
 
   Constraint: `Extract metadata from this constraint description. Return JSON:
 {
-  "constraint_type": "priority" | "belief" | "approach" | "structure",
+  "constraint_type": "priority" | "understanding" | "approach" | "mechanics",
   "rigidity": "fixed" | "firm" | "flexible",
-  "validation_state": "assumption" | "conviction" | "learning" (for beliefs only, omit otherwise),
+  "validation_state": "assumption" | "conviction" | "learning" (for the understanding layer only, omit otherwise),
   "origin_source": "intentional" | "emergent" | "inherited" (if detectable)
 }`,
 
@@ -176,7 +176,7 @@ const EXTRACTION_PROMPTS: Partial<Record<NodeLabel, string>> = {
 {
   "source_type": "direct_observation" | "reported" | "inferred" | "environmental",
   "confidence": "high" | "medium" | "low",
-  "altitude": "purpose" | "priority" | "belief" | "approach" | "structure"
+  "altitude": "purpose" | "priority" | "understanding" | "approach" | "mechanics"
 }`,
 
   Session: `Extract metadata from this session description. Return JSON:
@@ -187,7 +187,7 @@ const EXTRACTION_PROMPTS: Partial<Record<NodeLabel, string>> = {
 
   Discrepancy: `Extract metadata from this discrepancy description. Return JSON:
 {
-  "altitude": "purpose" | "priority" | "belief" | "approach" | "structure"
+  "altitude": "purpose" | "priority" | "understanding" | "approach" | "mechanics"
 }`,
 };
 
