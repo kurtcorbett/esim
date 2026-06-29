@@ -1,7 +1,6 @@
 ---
 name: Structured Intent — Session Protocol
 description: Operational protocol for ESIM sessions. Load at session start to govern graph interactions, context loading, signal capture, and real-time processing.
-model: opus
 ---
 
 # Structured Intent — Session Protocol

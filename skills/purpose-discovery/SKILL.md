@@ -1,7 +1,6 @@
 ---
 name: purpose-discovery
 description: Facilitate a first structured-intent session — discover an entity's core purpose, constraint stack, and foundational graph.
-model: opus
 allowed-tools: [mcp__esim__create_entity, mcp__esim__create_signal, mcp__esim__create_session, mcp__esim__create_relationship, mcp__esim__search, mcp__esim__get_node, mcp__esim__traverse, mcp__esim__update_node, mcp__esim__capture, mcp__esim__stats, mcp__esim__run_diagnostic, mcp__esim__list]
 ---
 
@@ -224,4 +223,4 @@ As signals surface, run each through these processing steps. Invoke them activel
 
 ## MCP Server Note
 
-This skill calls `mcp__esim__*` tools, so the ESIM MCP server must be registered as `esim` in your client (see the repo README for registration). If you run a separate sandbox instance under a different name, update the tool prefixes to match.
+This skill calls the ESIM MCP tools (exposed as `mcp__esim__*` in Claude Code and `mcp_esim_*` in Gemini CLI), so the ESIM MCP server must be registered as `esim` in your client (see the repo README for registration). If you run a separate sandbox instance under a different name, update the tool prefixes to match.

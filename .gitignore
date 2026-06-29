@@ -6,5 +6,6 @@ private/
 *.key
 .DS_Store
 .claude/
+.gemini/
 node_modules/
 backups/

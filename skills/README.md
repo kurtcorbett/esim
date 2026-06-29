@@ -1,6 +1,8 @@
 # ESIM Skills
 
-[Claude Code](https://claude.com/claude-code) skills that turn ESIM's raw graph into a guided, **structured-intent** practice. Each skill is a `SKILL.md` file with frontmatter (name, description, allowed ESIM tools) and a body of operating instructions the assistant follows.
+[Agent Skills](https://docs.claude.com/en/docs/agents-and-tools/agent-skills) that turn ESIM's raw graph into a guided, **structured-intent** practice. Each skill is a `SKILL.md` file with frontmatter (name, description, and — for Claude — allowed ESIM tools) and a body of operating instructions the assistant follows.
+
+They use the standard Agent Skills format, so they work in any client that implements it — both **[Claude Code](https://claude.com/claude-code)** and the **[Gemini CLI](https://github.com/google-gemini/gemini-cli)**. The skill bodies refer to ESIM tools by their bare names (`create_signal`, `get_context`, …), so they're portable across clients even though each client prefixes MCP tools differently. The Claude-only frontmatter fields (`model`, `allowed-tools`) are simply ignored by Gemini.
 
 ## Skills
 
@@ -12,17 +14,41 @@
 
 ## Loading a skill
 
-1. **Register the ESIM MCP server.** The skills call `mcp__esim__*` tools, so the server must be registered as `esim` (see the repo [README](../README.md#mcp-connection)).
-2. **Copy the skill into a directory your client reads** — your project's `.claude/skills/` or `~/.claude/skills/`:
+**Step 0 — register the ESIM MCP server (both clients).** The skills drive the ESIM tools, so the server must be registered as `esim` first (see the repo [README](../README.md#mcp-connection)).
+
+### Claude Code
+
+1. **Copy the skill into a directory Claude reads** — your project's `.claude/skills/` or `~/.claude/skills/`:
    ```bash
    cp -r skills/purpose-discovery ~/.claude/skills/
    cp -r skills/session-protocol ~/.claude/skills/
    cp -r skills/signal-processing ~/.claude/skills/
    ```
-3. **Use it:**
+2. **Use it:**
    - `purpose-discovery` — invoke with `/purpose-discovery`.
    - `session-protocol` — reference it from your project's `CLAUDE.md` so it loads as standing context at the start of every ESIM session.
    - `signal-processing` — invoke with `/signal-processing` to process the unprocessed-signal backlog.
+
+### Gemini CLI
+
+The same `SKILL.md` files work unchanged — Gemini reads the standard Agent Skills format and ignores the Claude-only frontmatter.
+
+1. **Install the skills** from this repo (run from the repo root). Either let Gemini manage them:
+   ```bash
+   gemini skills install ./skills/purpose-discovery
+   gemini skills install ./skills/session-protocol
+   gemini skills install ./skills/signal-processing
+   # or, to keep them live-linked to the repo so edits show up immediately:
+   #   gemini skills link "$(pwd)/skills/signal-processing"
+   ```
+   …or just copy them into the user skills directory, which is all `install` does:
+   ```bash
+   mkdir -p ~/.gemini/skills
+   cp -r skills/purpose-discovery skills/session-protocol skills/signal-processing ~/.gemini/skills/
+   ```
+   Verify with `gemini skills list` — all three should appear as `[Enabled]`.
+2. **Trust the workspace.** Gemini won't run the ESIM MCP tools (and so the skills can't act) in an untrusted folder — see the folder-trust note in the repo [README](../README.md#gemini-cli).
+3. **Use it:** Gemini activates a skill automatically when your request matches its `description`; you can also ask for it by name ("use the signal-processing skill"). For `session-protocol`, reference it from a `GEMINI.md` context file so it loads as standing context every session.
 
 ## The model these skills assume
 
