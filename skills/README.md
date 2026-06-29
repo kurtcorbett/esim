@@ -2,7 +2,7 @@
 
 [Agent Skills](https://docs.claude.com/en/docs/agents-and-tools/agent-skills) that turn ESIM's raw graph into a guided, **structured-intent** practice. Each skill is a `SKILL.md` file with frontmatter (name, description, and — for Claude — allowed ESIM tools) and a body of operating instructions the assistant follows.
 
-They use the standard Agent Skills format, so they work in any client that implements it — both **[Claude Code](https://claude.com/claude-code)** and the **[Gemini CLI](https://github.com/google-gemini/gemini-cli)**. The skill bodies refer to ESIM tools by their bare names (`create_signal`, `get_context`, …), so they're portable across clients even though each client prefixes MCP tools differently. The Claude-only frontmatter fields (`model`, `allowed-tools`) are simply ignored by Gemini.
+They use the standard Agent Skills format, so they work in any client that implements it — both **[Claude Code](https://claude.com/claude-code)** and the **[Antigravity CLI (agy)](https://antigravity.google)**. The skill bodies refer to ESIM tools by their bare names (`create_signal`, `get_context`, …), so they're portable across clients even though each client prefixes MCP tools differently. The Claude-only frontmatter fields (`model`, `allowed-tools`) are simply ignored by Antigravity.
 
 ## Skills
 
@@ -29,26 +29,28 @@ They use the standard Agent Skills format, so they work in any client that imple
    - `session-protocol` — reference it from your project's `CLAUDE.md` so it loads as standing context at the start of every ESIM session.
    - `signal-processing` — invoke with `/signal-processing` to process the unprocessed-signal backlog.
 
-### Gemini CLI
+### Antigravity CLI (`agy`)
 
-The same `SKILL.md` files work unchanged — Gemini reads the standard Agent Skills format and ignores the Claude-only frontmatter.
+The same `SKILL.md` files work unchanged — Antigravity reads the standard Agent Skills format and ignores the Claude-only frontmatter.
 
-1. **Install the skills** from this repo (run from the repo root). Either let Gemini manage them:
+To load the skills in `agy`, register them via `skills.json` in your workspace's customizations directory:
+
+1. **Create the workspace customization directory**:
    ```bash
-   gemini skills install ./skills/purpose-discovery
-   gemini skills install ./skills/session-protocol
-   gemini skills install ./skills/signal-processing
-   # or, to keep them live-linked to the repo so edits show up immediately:
-   #   gemini skills link "$(pwd)/skills/signal-processing"
+   mkdir -p .agents
    ```
-   …or just copy them into the user skills directory, which is all `install` does:
-   ```bash
-   mkdir -p ~/.gemini/skills
-   cp -r skills/purpose-discovery skills/session-protocol skills/signal-processing ~/.gemini/skills/
+2. **Create/update `.agents/skills.json`** to reference the `esim/skills` path:
+   ```json
+   {
+     "entries": [
+       { "path": "/absolute/path/to/esim/skills" }
+     ]
+   }
    ```
-   Verify with `gemini skills list` — all three should appear as `[Enabled]`.
-2. **Trust the workspace.** Gemini won't run the ESIM MCP tools (and so the skills can't act) in an untrusted folder — see the folder-trust note in the repo [README](../README.md#gemini-cli).
-3. **Use it:** Gemini activates a skill automatically when your request matches its `description`; you can also ask for it by name ("use the signal-processing skill"). For `session-protocol`, reference it from a `GEMINI.md` context file so it loads as standing context every session.
+   *Note: You can use an absolute path or a path relative to the active workspace.*
+
+3. **Verify and Use**:
+   Start `agy` and type `/skills` to verify that the three skills appear as active. They will activate automatically when a user request matches their `description`, or they can be standing context if referenced in your workspace instructions.
 
 ## The model these skills assume
 

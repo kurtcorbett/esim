@@ -296,27 +296,40 @@ Add to your MCP config (location varies by platform — see Claude Desktop docs)
 
 Restart Claude Desktop after editing. ESIM tools appear in the tools menu.
 
-### Gemini CLI
+### Antigravity CLI (`agy`)
 
-ESIM is a standard stdio MCP server, so the [Gemini CLI](https://github.com/google-gemini/gemini-cli) connects to it the same way Claude Code does — no code or config changes on the ESIM side.
+ESIM is a standard stdio MCP server. You can configure it manually in your user's `mcp_config.json` file.
 
-```bash
-gemini mcp add esim deno run --allow-net --allow-env --allow-read --allow-sys /path/to/esim/src/main.ts
+**Manual Configuration:**
+Add the following `esim` entry under the `mcpServers` object in `~/.gemini/antigravity-cli/mcp_config.json`:
+
+```json
+{
+  "mcpServers": {
+    "esim": {
+      "command": "deno",
+      "args": [
+        "run",
+        "--allow-net",
+        "--allow-env",
+        "--allow-read",
+        "--allow-sys",
+        "/absolute/path/to/esim/src/main.ts"
+      ]
+    }
+  }
+}
 ```
 
-This writes an `mcpServers` entry to `~/.gemini/settings.json` (use `-s project` to scope it to the current repo's `.gemini/settings.json` instead). The equivalent manual config is identical in shape to the Claude Desktop block above.
+Alternatively, you can manage and inspect MCP servers interactively within `agy` by running the CLI and using the `/mcp` command.
 
-**One Gemini-specific gotcha — folder trust.** Gemini CLI disables *all* MCP servers (even user-scoped ones) in folders you haven't marked as trusted, as a safety measure. Until you trust the folder you'll see `esim … - Disabled` and the tools won't load. Trust the workspace one of these ways:
-
-- Run `gemini` in the folder and accept the trust prompt, or run the `/permissions` command inside a session;
-- Launch a single session with `gemini --skip-trust`;
-- Or add the path to `~/.gemini/trustedFolders.json`: `{ "/path/to/your/workspace": "TRUST_FOLDER" }`.
-
-Verify: `gemini mcp list` should show `✓ esim … - Connected`.
+Verify the connection:
+1. Start `agy`.
+2. Type `/mcp` and press Enter to ensure `esim` is listed and connected.
 
 ### Verifying the Connection
 
-Once registered, test from your client (Claude Code, Claude Desktop, or Gemini CLI) by asking it to run `stats`. You should get back node/edge counts (all zeros on a fresh install). If you get a connection error, see Troubleshooting below. For Gemini specifically, a `Disabled` status almost always means the folder isn't trusted yet — see the Gemini CLI note above.
+Once registered, test from your client (Claude Code, Claude Desktop, or Antigravity CLI) by asking it to run `stats`. You should get back node/edge counts (all zeros on a fresh install). If you get a connection error, see Troubleshooting below.
 
 ## MCP Tools
 
@@ -682,7 +695,7 @@ claude mcp list
 
 ## Skills
 
-ESIM ships with [Agent Skills](https://docs.claude.com/en/docs/agents-and-tools/agent-skills) in [`skills/`](skills/) that turn the raw graph into a guided, structured-intent practice. They use the standard format, so they run in both [Claude Code](https://claude.com/claude-code) and the [Gemini CLI](https://github.com/google-gemini/gemini-cli):
+ESIM ships with [Agent Skills](https://docs.claude.com/en/docs/agents-and-tools/agent-skills) in [`skills/`](skills/) that turn the raw graph into a guided, structured-intent practice. They use the standard format, so they run in both [Claude Code](https://claude.com/claude-code) and the [Antigravity CLI (`agy`)](https://antigravity.google):
 
 - **[`purpose-discovery`](skills/purpose-discovery/SKILL.md)** — facilitates a first structured-intent session: discover an entity's core purpose, constraint stack, and foundational graph.
 - **[`session-protocol`](skills/session-protocol/SKILL.md)** — an operating protocol that governs how the assistant loads context, captures signals, and keeps the graph synchronized during any ESIM session.
